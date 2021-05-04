@@ -1,0 +1,8 @@
+dist
+distForNoAdditional
+node_modules
+routes.ts
+customRoutes.ts
+.idea/
+yarn-error.log
+tsconfig.tsbuildinfo

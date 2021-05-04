@@ -1,0 +1,243 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"ResponsePayload": {
+				"items": {
+					"type": "string"
+				},
+				"type": "array"
+			},
+			"RequestPayload": {
+				"properties": {
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object"
+			},
+			"SearchForUserByNameByIDResponse": {
+				"items": {
+					"type": "string"
+				},
+				"type": "array"
+			},
+			"SearchForUserByNameByIDInput": {
+				"properties": {
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object"
+			},
+			"SearchForUserByNameByIDWithParamsRes": {
+				"items": {
+					"type": "string"
+				},
+				"type": "array"
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "@tsoa/cli",
+		"version": "3.6.1",
+		"description": "Build swagger-compliant REST APIs using TypeScript and Node",
+		"license": {
+			"name": "MIT"
+		},
+		"contact": {
+			"name": "Luke Autry ",
+			"email": "lukeautry@gmail.com",
+			"url": "http://www.lukeautry.com"
+		}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/api/v0/search_by_name": {
+			"put": {
+				"operationId": "SearchForUserByNameMethod",
+				"responses": {
+					"200": {
+						"description": "all match otakumoID result",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ResponsePayload"
+								},
+								"examples": {
+									"Example 1": {
+										"value": []
+									}
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"User"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "Request payload search name",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RequestPayload"
+							},
+							"example": {
+								"name": "test"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v0/search_by_name/{id}": {
+			"put": {
+				"operationId": "SearchForUserByNameByIDMethod",
+				"responses": {
+					"200": {
+						"description": "all match otakumoID result",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SearchForUserByNameByIDResponse"
+								},
+								"examples": {
+									"Example 1": {
+										"value": [
+											"ik-user-3",
+											"ik-user-5"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"User"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "path id when filter search by name",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ik-user-12"
+					}
+				],
+				"requestBody": {
+					"description": "Request payload search name",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SearchForUserByNameByIDInput"
+							},
+							"example": {
+								"name": "searchUserName"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v0/search_by_name/{id}/{anotherparams}": {
+			"get": {
+				"operationId": "SearchForUserByNameByIDWithParamsMethod",
+				"responses": {
+					"200": {
+						"description": "all match otakumoID result",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SearchForUserByNameByIDWithParamsRes"
+								},
+								"examples": {
+									"Example 1": {
+										"value": [
+											"ik-user-3",
+											"ik-user-5"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"User"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "path id when filter search by name",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ik-user-12"
+					},
+					{
+						"description": "params id when filter search by name",
+						"in": "path",
+						"name": "anotherparams",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ik-user-12"
+					}
+				]
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "{protocol}:///",
+			"description": "mock server api",
+			"variables": {
+				"protocol": {
+					"enum": [
+						"http",
+						"https"
+					],
+					"default": "http"
+				}
+			}
+		},
+		{
+			"url": "{protocol}://localize-api.inkr.dev/",
+			"description": "Dev server",
+			"variables": {
+				"protocol": {
+					"enum": [
+						"http",
+						"https"
+					],
+					"default": "http"
+				}
+			}
+		}
+	]
+}

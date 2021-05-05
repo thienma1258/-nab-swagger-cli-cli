@@ -1,5 +1,5 @@
 {
-  "name": "@nab-swagger-cli/cli",
+  "name": "@thienma1258/nab-swagger-cli",
   "description": "Build swagger-compliant REST APIs using TypeScript and Node",
   "version": "1.0.0",
   "main": "./dist/index.js",
@@ -55,6 +55,9 @@
   "engines": {
     "yarn": ">=1.9.4",
     "node": ">=6.0.0"
+  },
+  "repository": {
+    "url": "https://github.com/thienma1258/nab-swagger-cli"
   },
   "engineStrict": true,
   "publishConfig": {

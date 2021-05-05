@@ -1,7 +1,7 @@
 {
   "name": "@thienma1258/nab-swagger-cli",
   "description": "Build swagger-compliant REST APIs using TypeScript and Node",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "keywords": [
@@ -57,11 +57,10 @@
     "node": ">=6.0.0"
   },
   "repository": {
-    "url": "https://github.com/thienma1258/nab-swagger-cli"
+    "url": "git@github.com:thienma1258/nab-swagger-cli.git"
   },
+  "engineStrict": true,
   "publishConfig": {
-    "registry":"https://npm.pkg.github.com",
     "access": "public"
-  },
-  "engineStrict": true
+  }
 }

@@ -59,8 +59,9 @@
   "repository": {
     "url": "https://github.com/thienma1258/nab-swagger-cli"
   },
-  "engineStrict": true,
   "publishConfig": {
+    "registry":"https://npm.pkg.github.com",
     "access": "public"
-  }
+  },
+  "engineStrict": true
 }

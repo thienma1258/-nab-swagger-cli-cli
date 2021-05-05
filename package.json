@@ -57,10 +57,11 @@
     "node": ">=6.0.0"
   },
   "repository": {
-    "url": "git@github.com:thienma1258/nab-swagger-cli.git"
+    "url": "git@github.com:thienma1258/nab-swagger-cli.git",
+    "type": "git"
   },
   "engineStrict": true,
   "publishConfig": {
-    "access": "public"
+    "registry":"https://npm.pkg.github.com/"
   }
 }

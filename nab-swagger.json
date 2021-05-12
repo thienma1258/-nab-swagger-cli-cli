@@ -1,0 +1,24 @@
+{
+  "entryFile": "src/index.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "spec": {
+    "outputDirectory": "public",
+    "specVersion": 3,
+    "securityDefinitions":{
+      "BearerJWT":{
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat":"JWT"
+      }
+    },
+    "host":[
+        {
+        "url": "localize-api.inkr.dev",
+        "description": "Dev server"
+      }
+    ]
+  },
+  "routes": {
+    "routesDir": "./src/metadataGeneration/share"
+  }
+}

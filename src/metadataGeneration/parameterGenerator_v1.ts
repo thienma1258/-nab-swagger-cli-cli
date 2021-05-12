@@ -9,12 +9,11 @@ import { getDecorators, getDecoratorValues, getNodeFirstDecoratorValue } from '.
 import { getInitializerValue } from './initializer-value';
 
 export class ParameterGeneratorV1 {
-  constructor(private readonly property: ts.PropertyDeclaration, private readonly method: string, private readonly path: string, private readonly current: MetadataSwaggerGeneratorV1) {}
+  constructor(private readonly property: ts.PropertyDeclaration, private readonly method: string,  private readonly current: MetadataSwaggerGeneratorV1) {}
 
   public Generate(): Tsoa.Parameter | null {
     const decorators = getDecorators(this.property, identifier => identifier.text === 'Request');
     let decoration: ts.Identifier = decorators[0];
-    console.log('path:', this.path);
     // eslint-disable-next-line @typescript-eslint/no-inferrable-types
     let type: string = ''; //default
     if (decorators.length === 0) {
@@ -22,10 +21,9 @@ export class ParameterGeneratorV1 {
     }
     for (let i = 0; i < decorators.length; i++) {
       decoration = decorators[i];
-      const [decorationType, description, example] = getDecoratorValues(decoration, this.current.typeChecker);
+      const [decorationType, _description, _example] = getDecoratorValues(decoration, this.current.typeChecker);
       type = decorationType;
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      console.log(`type${type} description :${description},example:${JSON.stringify(example)}`);
     }
 
     if (typeof type === "undefined" || type.length === 0) {
@@ -132,7 +130,6 @@ export class ParameterGeneratorV1 {
       type,
       validators: getParameterValidators(this.property, parameterName),
     };
-    console.log("param",param);
     return param;
   }
 
@@ -163,7 +160,6 @@ export class ParameterGeneratorV1 {
       type,
       validators: getParameterValidators(this.property, parameterName),
     };
-    console.log("param",parameter.initializer);
 
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     return param;
@@ -307,7 +303,7 @@ export class ParameterGeneratorV1 {
     let pathName = parameterName;
     const propertyText =propertyParamsSplit[propertyParamsSplit.length-1]
     const splitPropertyAndType = propertyText.split(":")
-    const property = splitPropertyAndType[0].trim()
+    const property = splitPropertyAndType[0].replace(/[\W_]+/g," ").trim()
     if (property.length >0){
       pathName=property
     }

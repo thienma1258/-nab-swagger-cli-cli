@@ -12,6 +12,7 @@ export class MetadataSwaggerGeneratorV1 {
   private readonly program: ts.Program;
   private referenceTypeMap: Tsoa.ReferenceTypeMap = {};
   private circularDependencyResolvers = new Array<(referenceTypes: Tsoa.ReferenceTypeMap) => void>();
+  private relativePath :string;
 
   public IsExportedNode(_node: ts.Node) {
     return true;
@@ -19,7 +20,10 @@ export class MetadataSwaggerGeneratorV1 {
 
   constructor(dirPath: string, private readonly compilerOptions?: ts.CompilerOptions) {
     TypeResolver.clearCache();
-    this.program = this.getControllerProgramFromDirPath(dirPath)
+    if(dirPath.includes("./")){
+      this.relativePath=dirPath.replace("./",process.cwd()+"/")
+    }
+    this.program = this.getControllerProgramFromDirPath()
     this.typeChecker = this.program.getTypeChecker();
   }
 
@@ -38,8 +42,8 @@ export class MetadataSwaggerGeneratorV1 {
     };
   }
 
-  private getControllerProgramFromDirPath(dirPath: string) {
-    const files = glob.sync(`${dirPath}/**/*.{js,ts}`).reverse();
+  private getControllerProgramFromDirPath() {
+    const files = glob.sync(`${this.relativePath}/**/*.{js,ts}`).reverse();
     files.forEach(file => {
       const relativePath = file.substring(__dirname.length);
       const method = path.basename(relativePath, path.extname(relativePath)).toLowerCase();
@@ -246,14 +250,20 @@ export class MetadataSwaggerGeneratorV1 {
 
     const controllers :Tsoa.Controller[]=[]
     const methods :Record<string,Tsoa.Method[]>={}
+    const basePath = this.relativePath.substring(0,this.relativePath.lastIndexOf("/"));
     for(let i=0;i< this.nodes.length;i++){
       const node = this.nodes[i];
       if ( node.kind === ts.SyntaxKind.ClassDeclaration && this.IsExportedNode(node as ts.ClassDeclaration)){
         const classDeclaration = node as ts.ClassDeclaration;
         const fileName =classDeclaration.getSourceFile().fileName
-        const relativePath = fileName.substring(__dirname.length);
+        const relativePath = fileName.substring(basePath.length);
         const method = path.basename(relativePath, path.extname(relativePath)).toLowerCase();
-        const apiPath = relativePath.substring(0,relativePath.lastIndexOf("/"))
+        let apiPath = relativePath.substring(0,relativePath.lastIndexOf("/"))
+        const indexOfApiPAth = apiPath.indexOf("/api")
+        if (indexOfApiPAth === -1){
+          continue;
+        }
+        apiPath=apiPath.substring(indexOfApiPAth)
         //gonna get method declaration;
         const apiMethodGenerator = new ApiMethodGenerator(classDeclaration,this,method as 'options' | 'get' | 'post' | 'put' | 'patch' | 'delete' | 'head',apiPath)
         const route = apiMethodGenerator.getPath()

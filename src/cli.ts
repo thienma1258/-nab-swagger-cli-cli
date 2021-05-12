@@ -3,14 +3,13 @@ import * as path from 'path';
 import * as ts from 'typescript';
 import * as YAML from 'yamljs';
 import * as yargs from 'yargs';
-import {  RoutesConfig } from '@tsoa/runtime';
+import { RoutesConfig } from '@tsoa/runtime';
 import { generateSpec } from './module/generate-spec';
 import { fsExists, fsReadFile } from './utils/fs';
 import { registerRouteMockApi } from './module/mock-server.run';
 const swaggerUi = require('swagger-ui-express');
 
 import swaggerUi from 'swagger-ui-express';
-
 
 import express = require('express');
 import { Config, SpecConfig } from './model/config';
@@ -51,7 +50,7 @@ const authorInformation: Promise<
     }
 > = getPackageJsonValue('author', 'unknown');
 
-const getConfig = async (configPath = 'tsoa.json'): Promise<Config> => {
+const getConfig = async (configPath = 'nab-swagger.json'): Promise<Config> => {
   let config: Config;
   try {
     const ext = path.extname(configPath);
@@ -243,8 +242,8 @@ export function runCLI(): void {
       SpecGenerator as any,
     )
     .command(
-      'swagger-and-mock-server-api',
-      'Generate OpenAPI spec and routes',
+      'docs',
+      'Run OpenAPI spec docs',
       {
         basePath: basePathArgs,
         configuration: configurationArgs,
@@ -252,7 +251,7 @@ export function runCLI(): void {
         json: jsonArgs,
         yaml: yarmlArgs,
       },
-      RunBothSwaggerAndMockServer as any,
+      RunSwaggerSpec as any,
     )
     .command(
       'mock-server-api',
@@ -265,6 +264,18 @@ export function runCLI(): void {
         yaml: yarmlArgs,
       },
       GenerateOpenApiMock as any,
+    )
+    .command(
+      'swagger-and-mock-server',
+      'Generate OpenAPI spec and routes',
+      {
+        basePath: basePathArgs,
+        configuration: configurationArgs,
+        host: hostArgs,
+        json: jsonArgs,
+        yaml: yarmlArgs,
+      },
+      RunBothSwaggerAndMockServer as any,
     )
     .help('help')
     .alias('help', 'h').argv;
@@ -289,6 +300,22 @@ async function SpecGenerator(args: SwaggerArgs) {
     const swaggerConfig = await validateSpecConfig(config);
     const routesConfig = await validateRoutesConfig(config);
     await generateSpec(swaggerConfig, routesConfig, compilerOptions, config.ignore);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Generate swagger error.\n', err);
+    process.exit(1);
+  }
+}
+
+async function RunSwaggerSpec(args: SwaggerArgs) {
+  try {
+    await SpecGenerator(args);
+    const server = express();
+    RegisterDocs(server);
+    const port = 3000;
+    server.listen(port, (): void => {
+      console.log(`> Ready on http://localhost:${port}`);
+    });
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Generate swagger error.\n', err);
@@ -344,16 +371,7 @@ async function RunBothSwaggerAndMockServer(args: SwaggerArgs) {
     const swaggerConfig = await validateSpecConfig(config);
     const routesConfig = await validateRoutesConfig(config);
     await generateSpec(swaggerConfig, routesConfig, compilerOptions, config.ignore);
-    server.use(express.static("public"));
-    server.use(
-      '/docs',
-      swaggerUi.serve,
-      swaggerUi.setup(undefined, {
-        swaggerOptions: {
-          url: '/swagger.json',
-        },
-      }),
-    );
+    RegisterDocs(server);
     registerRouteMockApi(swaggerConfig, routesConfig, server, compilerOptions);
     // Start server
     const port = 3000;
@@ -365,4 +383,20 @@ async function RunBothSwaggerAndMockServer(args: SwaggerArgs) {
     console.error('Generate swagger error.\n', err);
     process.exit(1);
   }
+}
+
+function RegisterDocs(server: express.Router) {
+  server.use(express.static('public'));
+  server.use(
+    '/docs',
+    swaggerUi.serve,
+    swaggerUi.setup(undefined, {
+      swaggerOptions: {
+        url: '/swagger.json',
+      },
+    }),
+  );
+  server.get('/docs_v1', function (req, res) {
+    res.sendFile(path.join(__dirname, '../public/redocs.html'));
+  });
 }

@@ -54,7 +54,10 @@ export class ApiMethodGenerator {
       extensions: this.getExtensions(),
       name: (this.node.name as ts.Identifier).text,
       path: this.relativePath,
+      deprecated:this.getDeprecated(),
+      description:this.getMethodDescription(),
       parameters: this.buildParameters(),
+      summary:this.getMethodDescription(),
       tags:this.tags,
       operationId: this.getOperationId(),
       responses: responses,
@@ -67,6 +70,29 @@ export class ApiMethodGenerator {
     //   const methodGenerator = new MethodGeneratorV1(this.node,this.current,this.commonResponses,this.path,this.tags,this.security,this.isHidden)
 
     return result;
+  }
+
+  public getMethodDescription(){
+    const decorators = getDecorators(this.node, identifier => identifier.text === 'MethodDescription');
+    if (!decorators || !decorators.length) {
+      return;
+    }
+    if (decorators.length > 1) {
+      throw new GenerateMetadataError(`Only one Route decorator allowed in '${this.node.name!.text}' class.`);
+    }
+
+    const decorator = decorators[0];
+    const expression = decorator.parent as ts.CallExpression;
+    const decoratorArgument = expression.arguments[0] as ts.StringLiteral;
+    return decoratorArgument ? `${decoratorArgument.text}` : '';
+  }
+
+  public getDeprecated(){
+    const decorators = getDecorators(this.node, identifier => identifier.text === 'Deprecated');
+    if (!decorators || !decorators.length) {
+      return false;
+    }
+    return true;
   }
 
   public getPath() {
@@ -192,12 +218,18 @@ export class ApiMethodGenerator {
         return decorators.map(decorator => {
           const expression = decorator.parent as ts.CallExpression;
 
-          const [name, description, example] = getDecoratorValues(decorator, this.current.typeChecker);
-
+          const [code, description, example] = getDecoratorValues(decorator, this.current.typeChecker);
+          // let apiResExample = example
+          if ((code as string).trim() ==="200"){
+            // apiResExample = {
+            //   code:0,
+            //   data:example
+            // }
+          }
           return {
             description: description || '',
             examples: example === undefined ? undefined : [example],
-            name: name || '200',
+            name: code || '200',
             schema: expression.typeArguments && expression.typeArguments.length > 0 ? new TypeResolver(expression.typeArguments[0], this.current).resolve() : undefined,
             headers: getHeaderType(expression.typeArguments, 1, this.current),
           } as Tsoa.Response;
@@ -211,7 +243,7 @@ export class ApiMethodGenerator {
     const parameters = this.node.members
       .map(p => {
         try {
-          return new ParameterGeneratorV1(p as ts.PropertyDeclaration, this.method, this.relativePath, this.current).Generate();
+          return new ParameterGeneratorV1(p as ts.PropertyDeclaration, this.method, this.current).Generate();
         } catch (e) {
           const methodId = this.node.name as ts.Identifier;
           throw new GenerateMetadataError(`${String(e.message)} \n in '${methodId.text}'`);
@@ -223,7 +255,6 @@ export class ApiMethodGenerator {
 
     const hasFormDataParameters = parameters.some(p => p.in === 'formData');
     const hasBodyParameter = bodyProps.length + bodyParameters.length > 0;
-      console.log(bodyParameters);
     if (bodyParameters.length > 1) {
       throw new GenerateMetadataError(`Only one body parameter allowed in '${this.getCurrentLocation()}' method.`);
     }

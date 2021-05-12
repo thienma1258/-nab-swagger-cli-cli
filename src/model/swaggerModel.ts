@@ -370,6 +370,12 @@ export declare namespace Swagger {
         tokenUrl: string;
         authorizationUrl: string;
     }
+
+    export interface BearerTokenSEcurity extends BaseOAuthSecurity {
+        type: 'http';
+        scheme: 'bearer';
+        bearerFormat:"JWT",
+    }
     export interface OAuthScope {
         [scopeName: string]: string;
     }

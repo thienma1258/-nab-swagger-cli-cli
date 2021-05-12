@@ -15,6 +15,14 @@ interface Context {
   [name: string]: ts.TypeReferenceNode | ts.TypeNode;
 }
 
+interface DereferenceType {
+  dataType: string;
+  default: unknown;
+  refName: string;
+  format: string;
+  type: Tsoa.NestedObjectLiteralType;
+}
+
 export class TypeResolver {
   constructor(
     private readonly typeNode: ts.TypeNode,
@@ -35,6 +43,7 @@ export class TypeResolver {
   }
 
   public resolve(): Tsoa.Type {
+   
     const primitiveType = this.getPrimitiveType(this.typeNode, this.parentNode);
     if (primitiveType) {
       return primitiveType;
@@ -341,9 +350,13 @@ export class TypeResolver {
       }
     }
 
-    const referenceType = this.getReferenceType(typeReference);
+    // console.log("sourceFile",this.typeNode.getSourceFile().fileName);
+    const referenceType = this.getReferenceType(typeReference, this.typeNode.getSourceFile().fileName);
+    // console.log("referenceType",referenceType.dataType);
 
-    this.current.AddReferenceType(referenceType);
+    if (this.isNotNestObject(referenceType)) {
+      this.current.AddReferenceType(referenceType as Tsoa.ReferenceType);
+    }
     return referenceType;
   }
 
@@ -492,8 +505,10 @@ export class TypeResolver {
     };
   }
 
-  private getReferenceType(node: ts.TypeReferenceType): Tsoa.ReferenceType {
+  private getReferenceType(node: ts.TypeReferenceType, sourceFile?: string): Tsoa.ReferenceType | Tsoa.NestedObjectLiteralType {
     let type: ts.EntityName;
+
+    // const referenceTypeNode = node as ts.TypeReferenceNode;
     if (ts.isTypeReferenceNode(node)) {
       type = node.typeName;
     } else if (ts.isExpressionWithTypeArguments(node)) {
@@ -501,6 +516,7 @@ export class TypeResolver {
     } else {
       throw new GenerateMetadataError(`Can't resolve Reference type.`);
     }
+    
 
     // Can't invoke getText on Synthetic Nodes
     let resolvableName = node.pos !== -1 ? node.getText() : (type as ts.Identifier).text;
@@ -522,10 +538,14 @@ export class TypeResolver {
     this.typeArgumentsToContext(node, type, this.context);
 
     try {
-      const existingType = localReferenceTypeCache[name];
+      const key = name + (sourceFile ? sourceFile : '');
+      const declarations = this.getModelTypeDeclarationV1(type);
+
+      const existingType = localReferenceTypeCache[key];
+
       if (existingType) {
         return existingType;
-      }
+      } 
 
       const refEnumType = this.getEnumerateType(type);
       if (refEnumType) {
@@ -533,17 +553,33 @@ export class TypeResolver {
         return refEnumType;
       }
 
-      if (inProgressTypes[name]) {
+      if (inProgressTypes[key]) {
         return this.createCircularDependencyResolver(name);
       }
 
-      inProgressTypes[name] = true;
+      inProgressTypes[key] = true;
 
-      const declaration = this.getModelTypeDeclaration(type);
+      
 
-      let referenceType: Tsoa.ReferenceType;
+      let declaration = declarations[0];
+      let referenceType: Tsoa.ReferenceType | Tsoa.NestedObjectLiteralType;
       if (ts.isTypeAliasDeclaration(declaration)) {
-        referenceType = this.getTypeAliasReference(declaration, name, node);
+        if (declarations.length > 1) {
+          referenceType = this.getTypeAliasReference(declaration, name, node);
+          for (let i = 0; i < declarations.length; i++) {
+            const declareType = declarations[i];
+            if (declareType.getSourceFile().fileName === sourceFile) {
+              declaration = declareType;
+            }
+          }
+
+          referenceType = this.getTypeAliasReference(declaration as ts.TypeAliasDeclaration, name, node);
+          const reReferenceType = referenceType as DereferenceType;
+          referenceType = reReferenceType.type;
+        } else {
+          // console.log('references type', name);
+          referenceType = this.getTypeAliasReference(declaration, name, node);
+        }
       } else if (ts.isEnumMember(declaration)) {
         referenceType = {
           dataType: 'refEnum',
@@ -554,8 +590,9 @@ export class TypeResolver {
       } else {
         referenceType = this.getModelReference(declaration, name);
       }
-
-      localReferenceTypeCache[name] = referenceType;
+      if (this.isNotNestObject(referenceType)) {
+        localReferenceTypeCache[name] = referenceType as Tsoa.ReferenceType;
+      }
 
       return referenceType;
     } catch (err) {
@@ -819,11 +856,50 @@ export class TypeResolver {
       modelTypes = this.getDesignatedModels(modelTypes, typeName) as UsableDeclarationWithoutPropertySignature[];
     }
     if (modelTypes.length > 1) {
-      const conflicts = modelTypes.map(modelType => modelType.getSourceFile().fileName).join('"; "');
-      throw new GenerateMetadataError(`Multiple matching models found for referenced type ${typeName}; please make model names unique. Conflicts found: "${conflicts}".`);
+      // const conflicts = modelTypes.map(modelType => modelType.getSourceFile().fileName).join('"; "');
+      // throw new GenerateMetadataError(`Multiple matching models found for referenced type ${typeName}; please make model names unique. Conflicts found: "${conflicts}".`);
     }
 
     return modelTypes[0];
+  }
+
+  private getModelTypeDeclarationV1(type: ts.EntityName) {
+    type UsableDeclarationWithoutPropertySignature = Exclude<UsableDeclaration, ts.PropertySignature>;
+
+    const leftmostIdentifier = this.resolveLeftmostIdentifier(type);
+    const statements: any[] = this.resolveModelTypeScope(leftmostIdentifier, this.current.nodes);
+
+    const typeName = type.kind === ts.SyntaxKind.Identifier ? type.text : type.right.text;
+
+    let modelTypes = statements.filter(node => {
+      if (!this.nodeIsUsable(node) || !this.current.IsExportedNode(node)) {
+        return false;
+      }
+
+      const modelTypeDeclaration = node as UsableDeclaration;
+      return (modelTypeDeclaration.name as ts.Identifier)?.text === typeName;
+    }) as UsableDeclarationWithoutPropertySignature[];
+
+    if (!modelTypes.length) {
+      throw new GenerateMetadataError(
+        `No matching model found for referenced type ${typeName}. If ${typeName} comes from a dependency, please create an interface in your own code that has the same structure. Tsoa can not utilize interfaces from external dependencies. Read more at https://github.com/lukeautry/tsoa/blob/master/docs/ExternalInterfacesExplanation.MD`,
+      );
+    }
+
+    if (modelTypes.length > 1) {
+      // remove types that are from typescript e.g. 'Account'
+      modelTypes = modelTypes.filter(modelType => {
+        return modelType.getSourceFile().fileName.replace(/\\/g, '/').toLowerCase().indexOf('node_modules/typescript') <= -1;
+      });
+
+      modelTypes = this.getDesignatedModels(modelTypes, typeName) as UsableDeclarationWithoutPropertySignature[];
+    }
+    if (modelTypes.length > 1) {
+      // const conflicts = modelTypes.map(modelType => modelType.getSourceFile().fileName).join('"; "');
+      // throw new GenerateMetadataError(`Multiple matching models found for referenced type ${typeName}; please make model names unique. Conflicts found: "${conflicts}".`);
+    }
+
+    return modelTypes;
   }
 
   private getModelProperties(node: ts.InterfaceDeclaration | ts.ClassDeclaration, overrideToken?: OverrideToken): Tsoa.Property[] {
@@ -1006,7 +1082,9 @@ export class TypeResolver {
           } else if (referenceType.dataType === 'refObject') {
             referenceType.properties.forEach(property => properties.push(property));
           } else {
-            assertNever(referenceType);
+            if (this.isNotNestObject(referenceType)) {
+              // assertNever(referenceType as Tsoa.ReferenceType);
+            }
           }
         }
 
@@ -1094,6 +1172,10 @@ export class TypeResolver {
     } else {
       return undefined;
     }
+  }
+
+  private isNotNestObject(model: Tsoa.ReferenceType | Tsoa.NestedObjectLiteralType) {
+    return (<Tsoa.NestedObjectLiteralType>model).dataType !== 'nestedObjectLiteral';
   }
 }
 

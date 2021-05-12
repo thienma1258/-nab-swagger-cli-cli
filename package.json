@@ -1,7 +1,7 @@
 {
-  "name": "@thienma1258/nab-swagger-cli",
+  "name": "nab-swagger-cli",
   "description": "Build swagger-compliant REST APIs using TypeScript and Node",
-  "version": "1.0.2",
+  "version": "1.2.6",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "keywords": [
@@ -22,7 +22,7 @@
     "tsc": "tsc -b",
     "watch": "tsc -b -w"
   },
-  "author": "Luke Autry <lukeautry@gmail.com> (http://www.lukeautry.com) modify by dongpham",
+  "author": "NAB Studio (https://officesnapshots.com/2020/06/15/nab-studio-offices-ho-chi-minh-city/) modify by dongpham",
   "license": "MIT",
   "dependencies": {
     "@microsoft/tsdoc-config": "^0.15.2",
@@ -35,6 +35,7 @@
     "merge": "^2.1.0",
     "minimatch": "^3.0.4",
     "moment": "^2.24.0",
+    "nab-swagger-cli": "^1.0.0",
     "swagger-ui-express": "^4.1.6",
     "typescript": "^4.1.2",
     "validator": "^12.2.0",
@@ -62,7 +63,6 @@
   },
   "engineStrict": true,
   "publishConfig": {
-    "registry":"https://npm.pkg.github.com/",
     "access": "public"
   }
 }

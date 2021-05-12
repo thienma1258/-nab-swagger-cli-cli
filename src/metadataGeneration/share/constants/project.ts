@@ -1,0 +1,1 @@
+export const SYSTEM_DEFAULT_TEXT_PRESET = 1;

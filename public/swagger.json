@@ -6,121 +6,342 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"ResponsePayload": {
-				"items": {
-					"type": "string"
-				},
-				"type": "array"
+			"UserID": {
+				"type": "string"
 			},
-			"RequestPayload": {
+			"RoleID": {
+				"type": "string"
+			},
+			"EntityOID": {
+				"type": "string"
+			},
+			"User": {
 				"properties": {
+					"oid": {
+						"$ref": "#/components/schemas/EntityOID"
+					},
+					"userID": {
+						"$ref": "#/components/schemas/UserID"
+					},
 					"name": {
+						"type": "string"
+					},
+					"avatarURL": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"emailVerified": {
+						"type": "boolean"
+					},
+					"invitingExpired": {
+						"type": "boolean"
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"globalRoles": {
+						"items": {
+							"$ref": "#/components/schemas/RoleID"
+						},
+						"type": "array"
+					},
+					"isLSUser": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"userID"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Pick_User-Array.Exclude_keyofUser-Array.__": {
+				"properties": {
+					"length": {
+						"type": "number",
+						"format": "double",
+						"description": "Returns the length of a String object."
+					}
+				},
+				"required": [
+					"length"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_User-Array._": {
+				"$ref": "#/components/schemas/Pick_User-Array.Exclude_keyofUser-Array.__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"Pick_Thread.entityOID-or-position_": {
+				"properties": {
+					"entityOID": {},
+					"position": {}
+				},
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Point": {
+				"properties": {
+					"y": {
+						"type": "number",
+						"format": "double"
+					},
+					"x": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"y",
+					"x"
+				],
+				"type": "object"
+			},
+			"Pick_Comment.parentCommentOID-or-payload_": {
+				"properties": {
+					"parentCommentOID": {},
+					"payload": {}
+				},
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"CreateCommentInput": {
+				"$ref": "#/components/schemas/Pick_Comment.parentCommentOID-or-payload_"
+			},
+			"UpdateCommentResponse": {},
+			"Pick_Tag.name_": {
+				"properties": {
+					"name": {}
+				},
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Partial_Pick_Tag.extras__": {
+				"properties": {
+					"extras": {}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"CreateTagInput": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/Pick_Tag.name_"
+					},
+					{
+						"$ref": "#/components/schemas/Partial_Pick_Tag.extras__"
+					}
+				]
+			},
+			"Record_Text.SpellingError-Array_": {
+				"properties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"Record_TextID.string_": {
+				"properties": {},
+				"type": "object",
+				"description": "Construct a type with a set of properties K of type T"
+			},
+			"Pick_Asset.name-or-fileURL-or-fileType-or-fileSize-or-previewImage_": {
+				"properties": {
+					"name": {},
+					"fileURL": {},
+					"fileType": {},
+					"fileSize": {},
+					"previewImage": {}
+				},
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Partial_Pick_Asset.tagList__": {
+				"properties": {
+					"tagList": {}
+				},
+				"type": "object",
+				"description": "Make all properties in T optional"
+			},
+			"CreateAssetInput": {
+				"allOf": [
+					{
+						"$ref": "#/components/schemas/Pick_Asset.name-or-fileURL-or-fileType-or-fileSize-or-previewImage_"
+					},
+					{
+						"$ref": "#/components/schemas/Partial_Pick_Asset.tagList__"
+					}
+				]
+			},
+			"Pick_Asset.name-or-tagList_": {
+				"properties": {
+					"name": {},
+					"tagList": {}
+				},
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"S3Image": {
+				"properties": {
+					"url": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"name"
+					"url"
 				],
 				"type": "object"
-			},
-			"SearchForUserByNameByIDResponse": {
-				"items": {
-					"type": "string"
-				},
-				"type": "array"
-			},
-			"SearchForUserByNameByIDInput": {
-				"properties": {
-					"name": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"name"
-				],
-				"type": "object"
-			},
-			"SearchForUserByNameByIDWithParamsRes": {
-				"items": {
-					"type": "string"
-				},
-				"type": "array"
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"BearerJWT": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
 	},
 	"info": {
-		"title": "@tsoa/cli",
-		"version": "3.6.1",
+		"title": "nab-swagger-cli",
+		"version": "1.2.6",
 		"description": "Build swagger-compliant REST APIs using TypeScript and Node",
 		"license": {
 			"name": "MIT"
 		},
 		"contact": {
-			"name": "Luke Autry ",
-			"email": "lukeautry@gmail.com",
-			"url": "http://www.lukeautry.com"
+			"name": "NAB Studio ",
+			"url": "https://officesnapshots.com/2020/06/15/nab-studio-offices-ho-chi-minh-city/"
 		}
 	},
 	"openapi": "3.0.0",
 	"paths": {
-		"/api/v0/search_by_name": {
+		"/api/v0/user/search-by-name": {
 			"put": {
 				"operationId": "SearchForUserByNameMethod",
 				"responses": {
 					"200": {
-						"description": "all match otakumoID result",
+						"description": "Result user matching that name",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/ResponsePayload"
-								},
-								"examples": {
-									"Example 1": {
-										"value": []
-									}
+									"items": {
+										"$ref": "#/components/schemas/User"
+									},
+									"type": "array"
 								}
 							}
 						}
 					}
 				},
+				"description": "Search for user by name",
+				"summary": "Search for user by name",
 				"tags": [
 					"User"
 				],
-				"security": [],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
 				"parameters": [],
 				"requestBody": {
-					"description": "Request payload search name",
+					"description": "Request payload create new thread",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/RequestPayload"
+								"properties": {
+									"name": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"name"
+								],
+								"type": "object"
 							},
 							"example": {
-								"name": "test"
+								"name": "input search name body"
 							}
 						}
 					}
 				}
 			}
 		},
-		"/api/v0/search_by_name/{id}": {
-			"put": {
-				"operationId": "SearchForUserByNameByIDMethod",
+		"/api/v0/thread": {
+			"post": {
+				"operationId": "CreateThreadMethod",
 				"responses": {
 					"200": {
-						"description": "all match otakumoID result",
+						"description": "OID of new created thread",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SearchForUserByNameByIDResponse"
+									"type": "string"
+								},
+								"examples": {
+									"Example 1": {
+										"value": "ls-thread-3"
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Create new thread",
+				"summary": "Create new thread",
+				"tags": [
+					"Thread"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Request payload create new thread",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Pick_Thread.entityOID-or-position_"
+							},
+							"example": {
+								"entityOID": "ls-project-1",
+								"position": {
+									"x": 1,
+									"y": 3
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v0/thread/entity/{entityOID}": {
+			"get": {
+				"operationId": "GetThreadOIDsByEntityOIDMethod",
+				"responses": {
+					"200": {
+						"description": "OIDs of query result",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/EntityOID"
+									},
+									"type": "array"
 								},
 								"examples": {
 									"Example 1": {
 										"value": [
-											"ik-user-3",
-											"ik-user-5"
+											"ls-thread-3",
+											"ls-thread-4"
 										]
 									}
 								}
@@ -128,54 +349,250 @@
 						}
 					}
 				},
+				"description": "Get all thread by entityOID",
+				"summary": "Get all thread by entityOID",
 				"tags": [
-					"User"
+					"Thread"
 				],
-				"security": [],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
 				"parameters": [
 					{
-						"description": "path id when filter search by name",
+						"description": "EntityOID query all thread relate",
 						"in": "path",
-						"name": "id",
+						"name": "entityOID",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/EntityOID"
+						}
+					}
+				]
+			}
+		},
+		"/api/v0/thread/{threadOID}/unresolve": {
+			"put": {
+				"operationId": "UnResolveCommentMethod",
+				"responses": {
+					"200": {
+						"description": "Ok un-resolve success"
+					}
+				},
+				"description": "Un-resolve thread by oid",
+				"summary": "Un-resolve thread by oid",
+				"tags": [
+					"Thread"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "thread oid need un-resolve",
+						"in": "path",
+						"name": "threadOID",
 						"required": true,
 						"schema": {
 							"type": "string"
 						},
-						"example": "ik-user-12"
+						"example": "ls-thread-3"
+					}
+				]
+			}
+		},
+		"/api/v0/thread/{threadOID}/resolve": {
+			"put": {
+				"operationId": "ResolveCommentMethod",
+				"responses": {
+					"200": {
+						"description": "Ok resolve success"
+					}
+				},
+				"description": "Resolve thread by oid",
+				"summary": "Resolve thread by oid",
+				"tags": [
+					"Thread"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "thread oid need un-resolve",
+						"in": "path",
+						"name": "threadOID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ls-thread-3"
+					}
+				]
+			}
+		},
+		"/api/v0/thread/{threadOID}/position": {
+			"put": {
+				"operationId": "UpdateThreadPositionMethod",
+				"responses": {
+					"200": {
+						"description": "Ok update success"
+					}
+				},
+				"description": "Update position of thread",
+				"summary": "Update position of thread",
+				"tags": [
+					"Thread"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "thread oid",
+						"in": "path",
+						"name": "threadOID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ls-thread-3"
 					}
 				],
 				"requestBody": {
-					"description": "Request payload search name",
+					"description": "Position need to be update",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SearchForUserByNameByIDInput"
+								"$ref": "#/components/schemas/Point"
 							},
 							"example": {
-								"name": "searchUserName"
+								"x": 1.2,
+								"y": 1.5
 							}
 						}
 					}
 				}
 			}
 		},
-		"/api/v0/search_by_name/{id}/{anotherparams}": {
-			"get": {
-				"operationId": "SearchForUserByNameByIDWithParamsMethod",
+		"/api/v0/thread/{threadOID}": {
+			"delete": {
+				"operationId": "DeleteThreadMethod",
 				"responses": {
 					"200": {
-						"description": "all match otakumoID result",
+						"description": "Ok delete success"
+					}
+				},
+				"description": "Delete thread by oid",
+				"summary": "Delete thread by oid",
+				"tags": [
+					"Thread"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "thread oid need delete",
+						"in": "path",
+						"name": "threadOID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ls-thread-3"
+					}
+				]
+			}
+		},
+		"/api/v0/thread/{threadOID}/comment": {
+			"post": {
+				"operationId": "CreateCommentMethod",
+				"responses": {
+					"200": {
+						"description": "Ok return new commentID",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SearchForUserByNameByIDWithParamsRes"
+									"$ref": "#/components/schemas/EntityOID"
+								},
+								"examples": {
+									"Example 1": {
+										"value": "ls-comment-1"
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Create Comment",
+				"summary": "Create Comment",
+				"tags": [
+					"Comment"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "thread oid",
+						"in": "path",
+						"name": "threadOID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ls-thread-3"
+					}
+				],
+				"requestBody": {
+					"description": " payload create new comment",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateCommentInput"
+							},
+							"example": {
+								"parentCommentOID": "ls-comment-3",
+								"payload": {
+									"any": "any"
+								}
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetCommentMethod",
+				"responses": {
+					"200": {
+						"description": "Ok return new commentID",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/EntityOID"
+									},
+									"type": "array"
 								},
 								"examples": {
 									"Example 1": {
 										"value": [
-											"ik-user-3",
-											"ik-user-5"
+											"ls-comment-1",
+											"ls-comment-2"
 										]
 									}
 								}
@@ -183,30 +600,616 @@
 						}
 					}
 				},
+				"description": "Get comment by ThreadID",
+				"summary": "Get comment by ThreadID",
 				"tags": [
-					"User"
+					"Comment"
 				],
-				"security": [],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
 				"parameters": [
 					{
-						"description": "path id when filter search by name",
+						"description": "thread oid",
 						"in": "path",
-						"name": "id",
+						"name": "threadOID",
 						"required": true,
 						"schema": {
 							"type": "string"
 						},
-						"example": "ik-user-12"
+						"example": "ls-thread-3"
+					}
+				]
+			}
+		},
+		"/api/v0/thread/{threadOID}/comment/{commentOID}": {
+			"put": {
+				"operationId": "UpdateCommentMethod",
+				"responses": {
+					"200": {
+						"description": "Ok update success"
+					}
+				},
+				"description": "Update comment by CommentOID",
+				"summary": "Update comment by CommentOID",
+				"tags": [
+					"Comment"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "thread oid",
+						"in": "path",
+						"name": "threadOID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ls-thread-3"
 					},
 					{
-						"description": "params id when filter search by name",
+						"description": "thread oid",
 						"in": "path",
-						"name": "anotherparams",
+						"name": "commentOID",
 						"required": true,
 						"schema": {
 							"type": "string"
 						},
-						"example": "ik-user-12"
+						"example": "ls-thread-3"
+					}
+				]
+			},
+			"delete": {
+				"operationId": "DeleteCommentMethod",
+				"responses": {
+					"200": {
+						"description": "Ok delete success"
+					}
+				},
+				"description": "Delete comment by CommentOID",
+				"summary": "Delete comment by CommentOID",
+				"tags": [
+					"Comment"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "thread oid",
+						"in": "path",
+						"name": "threadOID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ls-thread-3"
+					},
+					{
+						"description": "thread oid",
+						"in": "path",
+						"name": "commentOID",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"example": "ls-thread-3"
+					}
+				]
+			}
+		},
+		"/api/v0/tag/search-by-name": {
+			"put": {
+				"operationId": "GetAllAccessibilityTagMethod",
+				"responses": {
+					"200": {
+						"description": "OIDs of result tags",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/EntityOID"
+									},
+									"type": "array"
+								},
+								"examples": {
+									"Example 1": {
+										"value": [
+											"ls-tag-1",
+											"ls-tag-2",
+											"ls-tag-3"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Search tags by names",
+				"summary": "Search tags by names",
+				"tags": [
+					"Tag"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Request payload create new tags",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"name": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"name"
+								],
+								"type": "object"
+							},
+							"example": {
+								"name": "search tags names"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v0/tag": {
+			"post": {
+				"operationId": "CreateTagMethod",
+				"responses": {
+					"200": {
+						"description": "OIDs of new created tags",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/EntityOID"
+									},
+									"type": "array"
+								},
+								"examples": {
+									"Example 1": {
+										"value": [
+											"ls-tag-1",
+											"ls-tag-2",
+											"ls-tag-3"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Create new Tags",
+				"summary": "Create new Tags",
+				"tags": [
+					"Tag"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Request payload create new tags",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"items": {
+									"$ref": "#/components/schemas/CreateTagInput"
+								},
+								"type": "array"
+							},
+							"example": [
+								{
+									"name": "test tags",
+									"extras": [
+										{
+											"key": "anyKeys",
+											"value": "any Value"
+										}
+									]
+								}
+							]
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetAllAccessibilityTagMethod",
+				"responses": {
+					"200": {
+						"description": "OIDs of result tags",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/EntityOID"
+									},
+									"type": "array"
+								},
+								"examples": {
+									"Example 1": {
+										"value": [
+											"ls-tag-1",
+											"ls-tag-2",
+											"ls-tag-3"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all accessibility tags",
+				"summary": "Get all accessibility tags",
+				"tags": [
+					"Tag"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/api/v0/spelling-error": {
+			"put": {
+				"operationId": "CheckSpellingErrorMethod",
+				"responses": {
+					"200": {
+						"description": "Result of spelling check",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Record_Text.SpellingError-Array_"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"groupText1": [
+												{
+													"id": "1",
+													"context": {
+														"text": "need",
+														"offset": 3,
+														"length": 4
+													},
+													"type": "",
+													"error": "",
+													"suggestion": [
+														"text need check spellings"
+													]
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Check spelling error",
+				"summary": "Check spelling error",
+				"tags": [
+					"Spelling"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Request payload need to check spelling",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"language": {
+										"type": "string"
+									},
+									"texts": {
+										"$ref": "#/components/schemas/Record_TextID.string_"
+									}
+								},
+								"required": [
+									"texts"
+								],
+								"type": "object"
+							},
+							"example": {
+								"texts": {
+									"groupText1": "text need check spelling"
+								},
+								"language": "en"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v0/global-setting": {
+			"get": {
+				"operationId": "GetAllAssetMethod",
+				"responses": {
+					"200": {
+						"description": "OIDs of result assets",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Omit<User[], \"\">"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get global setting",
+				"summary": "Get global setting",
+				"tags": [
+					"Setting"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/api/v0/asset": {
+			"post": {
+				"operationId": "CreateManyAssetMethod",
+				"responses": {
+					"200": {
+						"description": "OIDs of result assets",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/EntityOID"
+									},
+									"type": "array"
+								},
+								"examples": {
+									"Example 1": {
+										"value": [
+											"ls-asset-1",
+											"ls-asset-2",
+											"ls-asset-3"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Create bulk many assets",
+				"summary": "Create bulk many assets",
+				"tags": [
+					"Asset"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Create many assets",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"items": {
+									"$ref": "#/components/schemas/CreateAssetInput"
+								},
+								"type": "array"
+							},
+							"example": [
+								{
+									"name": "assetsName",
+									"fileURL": {
+										"url": "s3ImageURL"
+									},
+									"fileType": "png",
+									"fileSize": 500,
+									"previewImage": {
+										"url": "s3ImageURL"
+									},
+									"tagList": [
+										"ls-tag-2"
+									]
+								}
+							]
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "GetAllAssetMethod",
+				"responses": {
+					"200": {
+						"description": "OIDs of result assets",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/EntityOID"
+									},
+									"type": "array"
+								},
+								"examples": {
+									"Example 1": {
+										"value": [
+											"ls-asset-1",
+											"ls-asset-2",
+											"ls-asset-3"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all accessibility asset",
+				"summary": "Get all accessibility asset",
+				"tags": [
+					"Asset"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": []
+			},
+			"delete": {
+				"operationId": "DeleteManyAssetMethod",
+				"responses": {
+					"200": {
+						"description": "Ok delete assets success"
+					}
+				},
+				"description": "Delete many assets",
+				"summary": "Delete many assets",
+				"tags": [
+					"Asset"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"description": "Delete many assets",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"items": {
+									"$ref": "#/components/schemas/EntityOID"
+								},
+								"type": "array"
+							},
+							"example": [
+								"ls-asset-1",
+								"ls-asset2"
+							]
+						}
+					}
+				}
+			}
+		},
+		"/api/v0/asset/{assetOID}": {
+			"put": {
+				"operationId": "UpdateAssetMethod",
+				"responses": {
+					"200": {
+						"description": "Ok update assets success"
+					}
+				},
+				"description": "Update asset",
+				"summary": "Update asset",
+				"tags": [
+					"Asset"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "assetOID need to update",
+						"in": "path",
+						"name": "assetOID",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/EntityOID"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "payload update assets",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Pick_Asset.name-or-tagList_"
+							},
+							"example": {
+								"name": "test",
+								"tagList": [
+									"ls-tag-2"
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v0/asset/{assetOID}/download": {
+			"get": {
+				"operationId": "GetDownloadImageMethod",
+				"responses": {
+					"200": {
+						"description": "Ok return image s3",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/S3Image"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"url": "s3://bucket/key"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Get download s3 image assets",
+				"summary": "Get download s3 image assets",
+				"tags": [
+					"Asset"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": [
+					{
+						"description": "assetOID need to update",
+						"in": "path",
+						"name": "assetOID",
+						"required": true,
+						"schema": {
+							"$ref": "#/components/schemas/EntityOID"
+						}
 					}
 				]
 			}

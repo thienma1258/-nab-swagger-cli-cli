@@ -167,7 +167,8 @@ export class SpecGenerator3 extends SpecGenerator {
     Object.keys(this.metadata.referenceTypeMap).map(typeName => {
       const referenceType = this.metadata.referenceTypeMap[typeName];
 
-      if (referenceType.dataType === 'refObject') {
+     
+      if (referenceType.dataType === 'refObject' && typeof referenceType.properties !== "undefined" &&referenceType.properties.length >0) {
         const required = referenceType.properties.filter(p => p.required).map(p => p.name);
         schema[referenceType.refName] = {
           description: referenceType.description,
@@ -237,7 +238,7 @@ export class SpecGenerator3 extends SpecGenerator {
           ...validators,
         };
       } else {
-        assertNever(referenceType);
+        // assertNever(referenceType);
       }
     });
 

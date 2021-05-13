@@ -36,13 +36,13 @@ export function getNodeFirstDecoratorValue(node: ts.Node, typeChecker: ts.TypeCh
   return values && values[0];
 }
 
-export function getDecoratorValues(decorator: ts.Identifier, typeChecker: ts.TypeChecker): any[] {
+export function getDecoratorValues(decorator: ts.Identifier, typeChecker: ts.TypeChecker,nodes?:ts.Node[]): any[] {
   const expression = decorator.parent as ts.CallExpression;
   const expArguments = expression.arguments;
   if (!expArguments || !expArguments.length) {
     return [];
   }
-  return expArguments.map(a => getInitializerValue(a, typeChecker));
+  return expArguments.map(a => getInitializerValue(a, typeChecker,undefined,nodes));
 }
 
 export function getSecurites(decorator: ts.Identifier, typeChecker: ts.TypeChecker) {

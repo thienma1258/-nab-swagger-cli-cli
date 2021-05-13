@@ -2,9 +2,9 @@ import { HttpStatusCodeLiteral, HttpStatusCodeStringLiteral, OtherValidOpenApiHt
 import { IsValidHeader } from "@tsoa/runtime/dist/utils/isHeaderType";
 
 export function CommonResponse<ExampleType, HeaderType extends IsValidHeader<HeaderType> = {}>(
-    name: HttpStatusCodeLiteral | HttpStatusCodeStringLiteral | OtherValidOpenApiHttpStatusCode,
-    description?: string,
-    example?: ExampleType,
+    _name: HttpStatusCodeLiteral | HttpStatusCodeStringLiteral | OtherValidOpenApiHttpStatusCode,
+    _description?: string,
+    _example?: ExampleType,
   ): Function {
     return () => {
       return;

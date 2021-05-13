@@ -119,7 +119,7 @@ export class ApiMethodGenerator {
     return decorators.map(decorator => {
       const expression = decorator.parent as ts.CallExpression;
 
-      const [name, description, example] = getDecoratorValues(decorator, this.current.typeChecker);
+      const [name, description, example] = getDecoratorValues(decorator, this.current.typeChecker,this.current.nodes);
       if (!name) {
         throw new GenerateMetadataError(`Controller's responses should have an explicit name.`);
       }
@@ -218,8 +218,8 @@ export class ApiMethodGenerator {
         return decorators.map(decorator => {
           const expression = decorator.parent as ts.CallExpression;
 
-          const [code, description, example] = getDecoratorValues(decorator, this.current.typeChecker);
-          // let apiResExample = example
+          const [code, description, example] = getDecoratorValues(decorator, this.current.typeChecker,this.current.nodes);
+     
           if ((code as string).trim() ==="200"){
             // apiResExample = {
             //   code:0,

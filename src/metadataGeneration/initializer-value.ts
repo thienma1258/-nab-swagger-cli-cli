@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import { Tsoa } from '@tsoa/runtime';
 
-export const getInitializerValue = (initializer?: ts.Expression, typeChecker?: ts.TypeChecker, type?: Tsoa.Type) => {
+export const getInitializerValue = (initializer?: ts.Expression, typeChecker?: ts.TypeChecker, type?: Tsoa.Type, nodes?: ts.Node[]) => {
   if (!initializer || !typeChecker) {
     return;
   }
@@ -9,7 +9,7 @@ export const getInitializerValue = (initializer?: ts.Expression, typeChecker?: t
   switch (initializer.kind) {
     case ts.SyntaxKind.ArrayLiteralExpression:
       const arrayLiteral = initializer as ts.ArrayLiteralExpression;
-      return arrayLiteral.elements.map(element => getInitializerValue(element, typeChecker));
+      return arrayLiteral.elements.map(element => getInitializerValue(element, typeChecker,type,nodes));
     case ts.SyntaxKind.StringLiteral:
       return (initializer as ts.StringLiteral).text;
     case ts.SyntaxKind.TrueKeyword:
@@ -27,7 +27,7 @@ export const getInitializerValue = (initializer?: ts.Expression, typeChecker?: t
         let date = new Date();
         if (newExpression.arguments) {
           const newArguments = newExpression.arguments.filter(args => args.kind !== undefined);
-          const argsValue = newArguments.map(args => getInitializerValue(args, typeChecker));
+          const argsValue = newArguments.map(args => getInitializerValue(args, typeChecker,type,nodes));
           if (argsValue.length > 0) {
             date = new Date(argsValue as any);
           }
@@ -43,9 +43,29 @@ export const getInitializerValue = (initializer?: ts.Expression, typeChecker?: t
       const objectLiteral = initializer as ts.ObjectLiteralExpression;
       const nestedObject: any = {};
       objectLiteral.properties.forEach((p: any) => {
-        nestedObject[p.name.text] = getInitializerValue(p.initializer, typeChecker);
+        nestedObject[p.name.text] = getInitializerValue(p.initializer, typeChecker,type,nodes);
       });
       return nestedObject;
+    case ts.SyntaxKind.PropertyAccessExpression:
+      if (nodes && nodes.length > 0) {
+        //maybe it is enum property
+        const accessExpression = initializer as ts.PropertyAccessExpression;
+        
+        // const propertySymbol = typeChecker.getSymbolAtLocation(accessExpression.expression);
+        // const propertyName = propertySymbol ? propertySymbol.escapedName  as string: '';
+        const [propertyName,propertyEnum]=accessExpression.getFullText().split(".")
+        const enumNodes = nodes.filter(node => node.kind === ts.SyntaxKind.EnumDeclaration).filter(node => (node as any).name.text === propertyName);
+        const enumDeclaration = enumNodes[0] as ts.EnumDeclaration;
+
+        const isNotUndefined = <T>(item: T): item is Exclude<T, undefined> => {
+          return item === undefined ? false : true;
+        };
+        const enums = enumDeclaration.members.map(typeChecker.getConstantValue.bind(typeChecker)).filter(isNotUndefined);
+        const enumVarnames = enumDeclaration.members.map(e => e.name.getText()).filter(isNotUndefined);
+        const indexOfEnum = enumVarnames.indexOf(propertyEnum)
+        return enums[indexOfEnum]
+      }
+      return null;
     default:
       const symbol = typeChecker.getSymbolAtLocation(initializer);
       const extractedInitializer = symbol && symbol.valueDeclaration && hasInitializer(symbol.valueDeclaration) && (symbol.valueDeclaration.initializer as ts.Expression);
@@ -54,7 +74,7 @@ export const getInitializerValue = (initializer?: ts.Expression, typeChecker?: t
 };
 
 export const getInitializerValueFromType = (type?: Tsoa.Type) => {
-  if (!type || typeof type==="undefined") {
+  if (!type || typeof type === 'undefined') {
     return;
   }
   switch (type.dataType) {
@@ -62,7 +82,7 @@ export const getInitializerValueFromType = (type?: Tsoa.Type) => {
       //default length = 3
       const length = 3;
       const arrayInitValue: unknown[] = [];
-      const initValue = getInitializerValueFromType( type.elementType);
+      const initValue = getInitializerValueFromType(type.elementType);
       for (let i = 0; i < length; i++) {
         arrayInitValue.push(initValue);
       }
@@ -87,17 +107,17 @@ export const getInitializerValueFromType = (type?: Tsoa.Type) => {
       }
       return dateString;
     case 'object':
-      return {}
-    case "nestedObjectLiteral":
+      return {};
+    case 'nestedObjectLiteral':
       const nestedObject: any = {};
-      type.properties.forEach((p:Tsoa.Property) => {
+      type.properties.forEach((p: Tsoa.Property) => {
         nestedObject[p.name] = getInitializerValueFromType(p.type);
       });
       return nestedObject;
-    case "refAlias":
+    case 'refAlias':
       return getInitializerValueFromType(type.type);
-    default:
-      {}
+    default: {
+    }
   }
 };
 

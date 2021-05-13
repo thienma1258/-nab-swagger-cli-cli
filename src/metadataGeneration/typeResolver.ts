@@ -541,7 +541,7 @@ export class TypeResolver {
       const key = name + (sourceFile ? sourceFile : '');
       const declarations = this.getModelTypeDeclarationV1(type);
 
-      const existingType = localReferenceTypeCache[key];
+      const existingType = localReferenceTypeCache[name];
 
       if (existingType) {
         return existingType;
@@ -554,7 +554,7 @@ export class TypeResolver {
       }
 
       if (inProgressTypes[key]) {
-        return this.createCircularDependencyResolver(name);
+        return this.createCircularDependencyResolver(key);
       }
 
       inProgressTypes[key] = true;
@@ -592,7 +592,7 @@ export class TypeResolver {
       }
       if (this.isNotNestObject(referenceType)) {
         localReferenceTypeCache[name] = referenceType as Tsoa.ReferenceType;
-      }
+      } 
 
       return referenceType;
     } catch (err) {

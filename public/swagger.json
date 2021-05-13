@@ -86,23 +86,6 @@
 				"type": "object",
 				"description": "From T, pick a set of properties whose keys are in the union K"
 			},
-			"Point": {
-				"properties": {
-					"y": {
-						"type": "number",
-						"format": "double"
-					},
-					"x": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"y",
-					"x"
-				],
-				"type": "object"
-			},
 			"Pick_Comment.parentCommentOID-or-payload_": {
 				"properties": {
 					"parentCommentOID": {},
@@ -115,86 +98,100 @@
 				"$ref": "#/components/schemas/Pick_Comment.parentCommentOID-or-payload_"
 			},
 			"UpdateCommentResponse": {},
-			"Pick_Tag.name_": {
-				"properties": {
-					"name": {}
-				},
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
-			"Partial_Pick_Tag.extras__": {
-				"properties": {
-					"extras": {}
-				},
-				"type": "object",
-				"description": "Make all properties in T optional"
-			},
-			"CreateTagInput": {
-				"allOf": [
-					{
-						"$ref": "#/components/schemas/Pick_Tag.name_"
-					},
-					{
-						"$ref": "#/components/schemas/Partial_Pick_Tag.extras__"
-					}
-				]
-			},
-			"Record_Text.SpellingError-Array_": {
+			"Record_EntityOID.PERMISSIONS-Array_": {
 				"properties": {},
 				"type": "object",
 				"description": "Construct a type with a set of properties K of type T"
 			},
-			"Record_TextID.string_": {
-				"properties": {},
-				"type": "object",
-				"description": "Construct a type with a set of properties K of type T"
+			"GetUserPermissionWithGivenEntityOIDsResponse": {
+				"$ref": "#/components/schemas/Record_EntityOID.PERMISSIONS-Array_"
 			},
-			"Pick_Asset.name-or-fileURL-or-fileType-or-fileSize-or-previewImage_": {
+			"Role": {
 				"properties": {
-					"name": {},
-					"fileURL": {},
-					"fileType": {},
-					"fileSize": {},
-					"previewImage": {}
-				},
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
-			"Partial_Pick_Asset.tagList__": {
-				"properties": {
-					"tagList": {}
-				},
-				"type": "object",
-				"description": "Make all properties in T optional"
-			},
-			"CreateAssetInput": {
-				"allOf": [
-					{
-						"$ref": "#/components/schemas/Pick_Asset.name-or-fileURL-or-fileType-or-fileSize-or-previewImage_"
+					"roleID": {
+						"$ref": "#/components/schemas/RoleID"
 					},
-					{
-						"$ref": "#/components/schemas/Partial_Pick_Asset.tagList__"
-					}
-				]
-			},
-			"Pick_Asset.name-or-tagList_": {
-				"properties": {
-					"name": {},
-					"tagList": {}
-				},
-				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
-			"S3Image": {
-				"properties": {
-					"url": {
+					"name": {
+						"type": "string"
+					},
+					"description": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"url"
+					"roleID",
+					"name",
+					"description"
 				],
-				"type": "object"
+				"type": "object",
+				"additionalProperties": false
+			},
+			"LanguageID": {
+				"type": "string"
+			},
+			"Language": {
+				"properties": {
+					"languageID": {
+						"$ref": "#/components/schemas/LanguageID"
+					},
+					"name": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"languageID",
+					"name",
+					"description"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"GetAllAssetResponse": {
+				"properties": {
+					"localizationSystemRoles": {
+						"properties": {
+							"organization": {
+								"items": {
+									"$ref": "#/components/schemas/Role"
+								},
+								"type": "array"
+							},
+							"project": {
+								"items": {
+									"$ref": "#/components/schemas/Role"
+								},
+								"type": "array"
+							},
+							"inkrls": {
+								"items": {
+									"$ref": "#/components/schemas/Role"
+								},
+								"type": "array"
+							}
+						},
+						"required": [
+							"organization",
+							"project",
+							"inkrls"
+						],
+						"type": "object"
+					},
+					"languages": {
+						"items": {
+							"$ref": "#/components/schemas/Language"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"localizationSystemRoles",
+					"languages"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {
@@ -207,7 +204,7 @@
 	},
 	"info": {
 		"title": "nab-swagger-cli",
-		"version": "1.2.6",
+		"version": "1.2.7",
 		"description": "Build swagger-compliant REST APIs using TypeScript and Node",
 		"license": {
 			"name": "MIT"
@@ -332,10 +329,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/EntityOID"
-									},
-									"type": "array"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -472,7 +466,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/Point"
+								"$ref": "#/components/schemas/Pick_Thread.entityOID-or-position_"
 							},
 							"example": {
 								"x": 1.2,
@@ -524,7 +518,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/EntityOID"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -583,10 +577,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/EntityOID"
-									},
-									"type": "array"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -715,10 +706,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/EntityOID"
-									},
-									"type": "array"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -750,15 +738,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"properties": {
-									"name": {
-										"type": "string"
-									}
-								},
-								"required": [
-									"name"
-								],
-								"type": "object"
+								"$ref": "#/components/schemas/Pick_Thread.entityOID-or-position_"
 							},
 							"example": {
 								"name": "search tags names"
@@ -777,10 +757,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/EntityOID"
-									},
-									"type": "array"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -812,10 +789,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"items": {
-									"$ref": "#/components/schemas/CreateTagInput"
-								},
-								"type": "array"
+								"$ref": "#/components/schemas/Pick_Thread.entityOID-or-position_"
 							},
 							"example": [
 								{
@@ -840,10 +814,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/EntityOID"
-									},
-									"type": "array"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -880,7 +851,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Record_Text.SpellingError-Array_"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -924,18 +895,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"properties": {
-									"language": {
-										"type": "string"
-									},
-									"texts": {
-										"$ref": "#/components/schemas/Record_TextID.string_"
-									}
-								},
-								"required": [
-									"texts"
-								],
-								"type": "object"
+								"$ref": "#/components/schemas/Pick_Thread.entityOID-or-position_"
 							},
 							"example": {
 								"texts": {
@@ -948,16 +908,54 @@
 				}
 			}
 		},
+		"/api/v0/permission": {
+			"put": {
+				"operationId": "GetUserPermissionWithGivenEntityOIDsMethod",
+				"responses": {
+					"200": {
+						"description": "OID with all access permission",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GetUserPermissionWithGivenEntityOIDsResponse"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"ls-chapter-1": [
+												"view:anyProject:chapters",
+												"delete:organization:anyProject:chapter"
+											]
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"description": "Get User Permission",
+				"summary": "Get User Permission",
+				"tags": [
+					"Permission"
+				],
+				"security": [
+					{
+						"BearerJWT": []
+					}
+				],
+				"parameters": []
+			}
+		},
 		"/api/v0/global-setting": {
 			"get": {
 				"operationId": "GetAllAssetMethod",
 				"responses": {
 					"200": {
-						"description": "OIDs of result assets",
+						"description": "all global setting results",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Omit<User[], \"\">"
+									"$ref": "#/components/schemas/GetAllAssetResponse"
 								}
 							}
 						}
@@ -985,10 +983,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/EntityOID"
-									},
-									"type": "array"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -1020,10 +1015,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"items": {
-									"$ref": "#/components/schemas/CreateAssetInput"
-								},
-								"type": "array"
+								"$ref": "#/components/schemas/Pick_Thread.entityOID-or-position_"
 							},
 							"example": [
 								{
@@ -1053,10 +1045,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/EntityOID"
-									},
-									"type": "array"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {
@@ -1087,7 +1076,14 @@
 				"operationId": "DeleteManyAssetMethod",
 				"responses": {
 					"200": {
-						"description": "Ok delete assets success"
+						"description": "Ok delete assets success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
 					}
 				},
 				"description": "Delete many assets",
@@ -1107,10 +1103,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"items": {
-									"$ref": "#/components/schemas/EntityOID"
-								},
-								"type": "array"
+								"$ref": "#/components/schemas/Pick_Thread.entityOID-or-position_"
 							},
 							"example": [
 								"ls-asset-1",
@@ -1126,7 +1119,14 @@
 				"operationId": "UpdateAssetMethod",
 				"responses": {
 					"200": {
-						"description": "Ok update assets success"
+						"description": "Ok update assets success",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
 					}
 				},
 				"description": "Update asset",
@@ -1156,7 +1156,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/Pick_Asset.name-or-tagList_"
+								"$ref": "#/components/schemas/Pick_Thread.entityOID-or-position_"
 							},
 							"example": {
 								"name": "test",
@@ -1178,7 +1178,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/S3Image"
+									"type": "string"
 								},
 								"examples": {
 									"Example 1": {

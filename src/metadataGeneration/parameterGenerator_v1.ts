@@ -141,7 +141,7 @@ export class ParameterGeneratorV1 {
     }
 
     const type  =this.getValidatedType(parameter);
-    const [_type, description, example] = getDecoratorValues(decoration, this.current.typeChecker);
+    const [_type, description, example] = getDecoratorValues(decoration, this.current.typeChecker,this.current.nodes);
     let typeNode = parameter.type;
     if (!typeNode) {
       const type = this.current.typeChecker.getTypeAtLocation(parameter);
@@ -292,7 +292,7 @@ export class ParameterGeneratorV1 {
     // }
 
     const type  =this.getValidatedType(parameter);
-    const [_type, description, example] = getDecoratorValues(decoration, this.current.typeChecker);
+    const [_type, description, example] = getDecoratorValues(decoration, this.current.typeChecker,this.current.nodes);
     let typeNode = parameter.type;
     if (!typeNode) {
       const typeData = this.current.typeChecker.getTypeAtLocation(parameter);
